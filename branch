@@ -1,0 +1,19 @@
+#!/bin/bash
+array=''
+function findBranches() {
+	read -a array <<< "$echo $(git branch -a | grep -E "$1" | sed 's/\*//' | sed 's/remotes\/origin\///'))"
+	array=($(echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+	for index in "${!array[@]}"
+	do
+		echo "$index ${array[index]}" | grep --color=auto $1
+	done
+}
+findBranches $@
+if [ ${#array[@]} -eq 1 ] ; then
+	echo ${array[0]}
+	git checkout ${array[0]}
+elif [ ${$array[@]} -gt 1 ] ; then
+	read -p "Select branch: " choice
+	echo ${array[$choice]}
+	git checkout ${array[$choice]}
+fi
